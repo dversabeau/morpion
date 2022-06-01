@@ -1,15 +1,26 @@
 const express = require('express')
 const app = express();
-const path = require('path');
 const port = 8080;
-const http = require('http').createServer(app);
+const http = require('http');
+const {Server} = require('socket.io');
+const cors = require('cors');
 
-const io = require('socket.io')(http);
+app.use(cors())
 
-app.get('/', (req, res) => {
+const server = http.createServer(app);
 
+const io = new Server(server, {
+  cors: {
+    origin: 'http://localhost:3000',
+    methods: ["GET", "POST"],
+  },
 });
 
-http.listen(port, () =>{
+io.on('connection', (socket) => {
+  console.log(`Connection de ${socket.id}`);
+})
+
+server.listen(port, () =>{
   console.log('connection sur le port : ' + port);
 })
+
