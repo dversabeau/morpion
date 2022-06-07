@@ -7,7 +7,7 @@ const Header = () => {
   return (
     <Navbar bg="dark" variant="dark" expand="lg">
       <Container>
-        <Navbar.Brand href="/">Morp.IO.n</Navbar.Brand>
+        <Navbar.Brand href="/">MorpI/On</Navbar.Brand>
       </Container>
     </Navbar>
   )
