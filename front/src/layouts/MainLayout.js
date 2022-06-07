@@ -19,16 +19,38 @@ const MainLayout = () => {
     win: false,
   });
 
+  let [list, setList] = useState([]);
+
+  const getList = () => {
+    socket.emit("get rooms");
+    socket.on("list rooms", (rooms) => {
+      console.log(rooms)
+      if (rooms.length > 0) {
+        rooms.map((room) => {
+          console.log(room)
+          if (room.players.length < 1) {
+            setList((list) => [...list, ...room]);//Le problème vient d'içi
+          }
+        });
+        console.log('getList', list)
+      }
+
+    });
+    
+  }
+
   const [playerCreated, setPlayerCreated] = useState(false);
 
   const connectRoom = () => {
     socket.emit("playerData", player);
-    setPlayerCreated(true)
+    setPlayerCreated(true);
+    getList()
+    console.log('connectedRoom list', list);
   };
 
   return (
     <div className="main-body">
-      <Card className={`${playerCreated === false ? "display" : "d-none"}`} >
+      <Card className={`${playerCreated === false ? "display" : "d-none"}`}>
         <Card.Body>
           <h3>Créer un salon</h3>
           <InputGroup className="mb-3">
@@ -55,7 +77,6 @@ const MainLayout = () => {
         </Card.Body>
       </Card>
       <Card className={`${playerCreated === true ? "display" : "d-none"}`}>
-        <Card.Header>En attente d'un autre joueur...</Card.Header>
         <Card.Body>
           <Spinner animation="border" role="status"></Spinner>
         </Card.Body>
@@ -68,6 +89,18 @@ const MainLayout = () => {
           <Card.Link>Lien temporaire</Card.Link>
         </Card.Body>
       </Card>
+      {list.length > 0 ? (
+        <Card>
+          <Card.Header>Salon disponible</Card.Header>
+          <Card.Body>
+          {list.length > 0 && list.map((item) => {
+            <Card.Link>Lien temporaire</Card.Link>
+          })}
+          </Card.Body>
+        </Card>
+      ) : (
+        <div></div>
+      )}
     </div>
   );
 };

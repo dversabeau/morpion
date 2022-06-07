@@ -28,18 +28,39 @@ io.on("connection", (socket) => {
 
   socket.on("playerData", (player) => {
     player.socketId = socket.id;
-    player.host = true
-    player.turn = true
+    player.host = true;
+    player.turn = true;
     let room = null;
 
     if (!player.roomId) {
       room = createRoom(player);
+
       console.log(`ROOM CREATED :
       room id : ${room.id}
       player username : ${player.username} 
       player socket : ${player.socketId}
       player host : ${player.host}`);
+    } else {
+      room = rooms.find((r) => r.id === player.roomId);
+
+      if (room === undefined) {
+        return;
+      }
+
+      room.players.push(player);
     }
+
+    socket.join(room.id);
+
+    io.to(socket.id).emit("join room", room.id);
+
+    if (room.players.length === 2) {
+      io.to(room.id).emit("start game", room.players);
+    }
+  });
+
+  socket.on("get rooms", () => {
+    io.to(socket.id).emit("list rooms", rooms);
   });
 });
 
@@ -48,7 +69,7 @@ function createRoom(player) {
 
   player.roomId = room.id;
   room.players.push(player);
-  rooms.room;
+  rooms.push(room);
 
   return room;
 }
