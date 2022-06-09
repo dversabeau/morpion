@@ -27,6 +27,7 @@ io.on("connection", (socket) => {
   console.log(`Connection de ${socket.id}`);
 
   socket.on("playerData", (player) => {
+    console.log('playerData', player.username)
     player.socketId = socket.id;
     let room = null;
 
@@ -46,11 +47,13 @@ io.on("connection", (socket) => {
       }
 
       room.players.push(player);
+      console.log(`${player.username} à rejoint la room ${room.id}`)
     }
 
     socket.join(room.id);
+    console.log('players in the room', room.players.length)
 
-    io.to(socket.id).emit("join room", room.id);
+    // io.to(socket.id).emit("join room", {player, room});
 
     if (room.players.length === 2) {
       io.to(room.id).emit("start game", room.players);
@@ -77,12 +80,12 @@ io.on("connection", (socket) => {
   });
 
   socket.on("join room", (data) => {
-    let {player, item} = data;
-    console.log('join room', player);
+    const {player, item} = data;
     if (player.username !== "") {
       player.roomId = item.id;
       socket.emit("playerData", player);
-      console.log('if join room ', player);
+    } else {
+      console.log('Pas de pseudo')
     }
   });
 });

@@ -27,10 +27,8 @@ const MainLayout = () => {
   const getList = () => {
     socket.emit("get rooms");
     socket.on("list rooms", (rooms) => {
-      console.log(rooms);
       if (rooms.length > 0) {
         rooms.map((room) => {
-          console.log("room", room);
           if (room.players.length < 2) {
             setList((list) => [...list, room]);
           }
@@ -38,6 +36,11 @@ const MainLayout = () => {
       }
     });
   };
+
+  socket.on("start game", () => {
+    setGameStarted(true);
+    console.log('gameStarted', gameStarted)
+  });
 
   useEffect(() => {
     getList();
@@ -69,7 +72,6 @@ const MainLayout = () => {
               variant="secondary"
               id="button-addon1"
               onClick={() => {
-                console.log("connect");
                 connectRoom();
               }}
             >
@@ -97,17 +99,18 @@ const MainLayout = () => {
           <Card.Header>Salon disponibles</Card.Header>
           <Card.Body className="flex-column center">
             {list.map((item) => {
-              if ((item.players[0].username !== player.username)) {
+              if (item.players[0].username !== player.username) {
                 return (
                   <Card key={item.id} className="width-100 card-room-link">
                     <Card.Body className="room-link">
                       <Card.Text>
                         {item.players[0].username} - {item.id}
                       </Card.Text>
-                      {console.log(player)}
                       <Button
                         variant="success"
-                        onClick={(e) => socket.emit("join room", {player, item})}
+                        onClick={(e) =>
+                          socket.emit("join room", { player, item })
+                        }
                       >
                         Rejoindre
                       </Button>
@@ -119,9 +122,7 @@ const MainLayout = () => {
           </Card.Body>
         </Card>
       )}
-      <Playground
-        className={`${gameStarted === true ? "display" : "d-none"}`}
-      ></Playground>
+      <Playground gameStarted={gameStarted}></Playground>
     </div>
   );
 };
