@@ -6,6 +6,7 @@ import InputGroup from "react-bootstrap/InputGroup";
 import Button from "react-bootstrap/Button";
 import FormControl from "react-bootstrap/FormControl";
 import Spinner from "react-bootstrap/Spinner";
+import Playground from "../components/Playground";
 
 const MainLayout = () => {
   const [player, setPlayer] = useState({
@@ -20,32 +21,33 @@ const MainLayout = () => {
   });
 
   let [list, setList] = useState([]);
+  const [playerCreated, setPlayerCreated] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false);
 
   const getList = () => {
     socket.emit("get rooms");
     socket.on("list rooms", (rooms) => {
-      console.log(rooms)
+      console.log(rooms);
       if (rooms.length > 0) {
         rooms.map((room) => {
-          console.log(room)
-          if (room.players.length < 1) {
-            setList((list) => [...list, ...room]);//Le problème vient d'içi
+          console.log("room", room);
+          if (room.players.length < 2) {
+            setList((list) => [...list, room]);
           }
         });
-        console.log('getList', list)
       }
-
     });
-    
-  }
+  };
 
-  const [playerCreated, setPlayerCreated] = useState(false);
+  useEffect(() => {
+    getList();
+  }, []);
 
   const connectRoom = () => {
     socket.emit("playerData", player);
     setPlayerCreated(true);
-    getList()
-    console.log('connectedRoom list', list);
+    getList();
+    console.log("connectedRoom list", list);
   };
 
   return (
@@ -77,6 +79,7 @@ const MainLayout = () => {
         </Card.Body>
       </Card>
       <Card className={`${playerCreated === true ? "display" : "d-none"}`}>
+        <Card.Header>En attente d'un autre joueur</Card.Header>
         <Card.Body>
           <Spinner animation="border" role="status"></Spinner>
         </Card.Body>
@@ -89,18 +92,36 @@ const MainLayout = () => {
           <Card.Link>Lien temporaire</Card.Link>
         </Card.Body>
       </Card>
-      {list.length > 0 ? (
+      {list.length > 0 && list[0].players[0].username !== player.username && (
         <Card>
-          <Card.Header>Salon disponible</Card.Header>
-          <Card.Body>
-          {list.length > 0 && list.map((item) => {
-            <Card.Link>Lien temporaire</Card.Link>
-          })}
+          <Card.Header>Salon disponibles</Card.Header>
+          <Card.Body className="flex-column center">
+            {list.map((item) => {
+              if ((item.players[0].username !== player.username)) {
+                return (
+                  <Card key={item.id} className="width-100 card-room-link">
+                    <Card.Body className="room-link">
+                      <Card.Text>
+                        {item.players[0].username} - {item.id}
+                      </Card.Text>
+                      {console.log(player)}
+                      <Button
+                        variant="success"
+                        onClick={(e) => socket.emit("join room", {player, item})}
+                      >
+                        Rejoindre
+                      </Button>
+                    </Card.Body>
+                  </Card>
+                );
+              }
+            })}
           </Card.Body>
         </Card>
-      ) : (
-        <div></div>
       )}
+      <Playground
+        className={`${gameStarted === true ? "display" : "d-none"}`}
+      ></Playground>
     </div>
   );
 };

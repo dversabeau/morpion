@@ -1,3 +1,14 @@
+.main-body{
+  max-width: 600px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+.card{ 
+  margin: 16px;
+  width: 100%;
+
+}
 .navbar .container{
   display: flex;
   justify-content: center !important;
@@ -5,4 +16,30 @@
 
 .d-none {
   display: none;
+}
+.flex-column{
+  display: flex;
+  flex-direction: column;
+}
+.flex-row{
+  display: flex;
+}
+.center{
+  align-items: center;
+}
+.width-100{
+  width: 100%;
+}
+.card-room-link{
+  margin: 8px !important;
+}
+.room-link{
+  font-weight: bold;
+  color: black;
+  display: flex;
+  justify-content: space-between;
+}
+.room-link .card-text{
+  margin: 10px;
+
 }
